@@ -1,0 +1,39 @@
+service: canary-deployment
+
+plugins:
+  - serverless-plugin-aws-alerts
+  - serverless-plugin-canary-deployments
+  
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ap-southeast-1
+	
+custom:
+  alerts:
+    dashboards: true
+    
+functions:
+  testCanaries:
+    handler: handler.testCanaries
+    events:
+      - http:
+          path: /
+          method: get
+    alarms:
+      - name: Test
+        namespace: 'AWS/Lambda'
+        metric: Errors
+        threshold: 1
+        statistic: Sum
+        period: 60
+        evaluationPeriods: 1
+        comparisonOperator: GreaterThanOrEqualToThreshold
+    deploymentSettings:
+      type: Canary10Percent5Minutes
+      alias: Live
+      alarms:
+        - TestCanariesTestAlarm
+
+
+

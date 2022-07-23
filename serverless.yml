@@ -1,0 +1,20 @@
+service: canary-deployment
+
+plugins:
+  - serverless-plugin-canary-deployments
+  
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ap-southeast-1
+	
+functions:
+  testCanaries:
+    handler: handler.testCanaries
+    events:
+      - http:
+          path: /
+          method: get
+    deploymentSettings:
+      type: Canary10Percent5Minutes
+      alias: Live
